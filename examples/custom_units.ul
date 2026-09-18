@@ -1,0 +1,11 @@
+// Novelty feature: user-defined derived units.
+unit N = kg * m / s ^ 2;   // newton, defined from base units
+unit mph = mi / hr;        // miles per hour, defined from other units
+
+qty mass = 2 * kg;
+qty accel = 3 * m / s ^ 2;
+qty force = mass * accel;
+print(force);              // dimension matches N, smart print should show it
+
+qty speed = 60 * mi / hr;
+print(speed);

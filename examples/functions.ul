@@ -1,0 +1,14 @@
+// Functions + control flow demo.
+fn fact(n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * fact(n - 1);
+    }
+}
+
+qty i = 0;
+while (i < 5) {
+    print(fact(i));
+    i = i + 1;
+}

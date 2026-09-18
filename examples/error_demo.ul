@@ -1,0 +1,7 @@
+// This program is intentionally invalid: it mixes Length and Time.
+// Run it to see UnitLang's diagnostic-style error message (novelty #3).
+
+qty distance = 100 * m;
+qty duration = 9.58 * s;
+qty bad = distance + duration;
+print(bad);
