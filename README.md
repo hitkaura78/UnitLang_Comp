@@ -1,202 +1,134 @@
-# UnitLang — Review 2: Semantic Analysis & IR
+# UnitLang
 
-UnitLang is a small statically-checked language where every number carries
-a physical unit, and the compiler checks at compile time that operations
-on those numbers actually make physical sense — `distance + time` gets
-rejected the same way `int + bool` would in an ordinary type checker,
-because Length and Time aren't the same dimension.
+A small statically-checked programming language in which **every number carries a
+physical unit**, with a complete compiler: lexer → parser → dimensional type
+checker → IR → optimizer → bytecode generator → virtual machine.
 
-Review 1 covered the grammar and lexer. This review is about what happens
-after parsing: turning the AST into something that's actually been
-*checked*, and then into a form (IR) that a later code-generation phase
-could work from.
+`distance + time` is rejected at compile time, the same way `int + bool` would be in
+an ordinary language — because Length and Time are different *dimensions*.
 
-## Running it
+```
+qty distance = 100 * m;
+qty time     = 9.58 * s;
+print(distance / time);        // 10.4384 m/s
+print(distance + time);        // compile error: Length and Time ...
+```
 
-No dependencies beyond the standard library.
+Pure Python 3.10+ standard library. **No installation needed.** (`pytest` is only
+needed to run the tests.)
+
+## Quick start
 
 ```bash
-python3 main.py examples/basics.ul          # run a program
-python3 main.py examples/basics.ul --ir     # also dump the generated IR
-python3 -m pytest tests/                    # run the test suite
+python3 main.py examples/01_basics.ul
+python3 main.py examples/03_polymorphic_functions.ul --symbols
+python3 main.py examples/05_optimizer_demo.ul --stats
+python3 main.py examples/09_error_dimensions.ul
+python3 -m pytest tests -q
 ```
 
-Try `examples/error_demo.ul` too — it's deliberately broken, to show what
-a dimension-mismatch error actually looks like.
-
-## Project layout
-
-```
-lexer.py        Review 1 — tokenizer (unchanged since last review)
-parser.py       Review 1 — recursive-descent parser, + the new unitDecl rule
-ast_nodes.py    AST node definitions
-dimension.py    the actual "type system": (L, M, T) exponent vectors + arithmetic
-symtab.py       symbol table: scoped variables + a unit name table
-semantic.py     the dimensional-analysis checker (this review's core deliverable)
-irgen.py        AST -> linear three-address code, with dimensions preserved
-interpreter.py  tree-walking evaluator + the smart-print novelty feature
-main.py         ties the pipeline together (lex -> parse -> check -> IR -> run)
-examples/*.ul   sample programs, including one that's meant to fail
-tests/          pytest suite covering the checker, IR, and interpreter
-```
-
-## How the type checking actually works
-
-Every quantity's "type" is a `Dimension(L, M, T)` — exponents of Length,
-Mass, and Time (`dimension.py`). A plain number is `(0,0,0)`. `m` is
-`(1,0,0)`. `kg * m / s^2` works out to `(1,1,-2)`.
-
-The semantic analyzer (`semantic.py`) walks the AST bottom-up and computes
-a `Dimension` for every expression node:
-
-| Expression | Rule |
+| Flag | What it shows |
 |---|---|
-| number / bool literal | dimensionless |
-| identifier | dimension it was declared with, or a built-in unit's own dimension if it's a unit name being used as a value |
-| `a + b`, `a - b` | dimensions must be **equal**; result keeps that dimension |
-| `a * b` | dimensions **add** (component-wise) |
-| `a / b` | dimensions **subtract** |
-| `a ^ n` | `n` must be a literal integer; dimension is **multiplied by n** |
-| `<`, `<=`, `==`, ... | operands must match dimension; result is dimensionless (booleans don't carry units) |
+| *(none)* | compile and run on the bytecode VM |
+| `--ir` | three-address code, before and after optimization |
+| `--bytecode` | the generated stack-machine bytecode |
+| `--symbols` | unit table, global variables, inferred function instances |
+| `--stats` | optimizer counters and number of VM instructions executed |
+| `--no-opt` | disable the optimizer (compare with `--stats`) |
+| `--interp` | run on the reference tree-walking interpreter instead of the VM |
+| `--check` | type-check only |
 
-This is the same idea as any type checker unifying `int`/`float`/`bool` —
-it's just that here the "types" are physics dimensions instead of the
-usual scalar types, and the composition rules come from how physical
-quantities actually combine.
+Exit status: `0` success, `1` compile-time error, `2` runtime error.
 
-### Symbol table & scoping
-
-`symtab.py` keeps two separate tables, because they answer different
-questions:
-
-- **`units`**: "what does the identifier `km` mean?" → pre-loaded with the
-  built-ins from Review 1 (`m`, `km`, `kg`, `s`, `hr`, ...), and extended
-  at compile time by `unit` declarations (see Novelty #1 below).
-- **`scopes`**: the ordinary variable table, as a stack of dictionaries —
-  push on entering a block/function, pop on leaving, so a variable
-  declared inside an `if` doesn't leak into the surrounding scope.
-
-### Error handling
-
-Dimension mismatches don't just say "type error" — see Novelty #3 below.
-A bad top-level `qty` declaration is also given a dimensionless
-placeholder after it's reported, so one mistake doesn't cascade into a
-wall of unrelated "undeclared identifier" errors on every later line that
-uses it.
-
-## IR design
-
-`irgen.py` lowers a *type-checked* AST (semantic analysis must have
-already succeeded) into linear three-address code:
+## Pipeline
 
 ```
-op, arg1, arg2, result
+source ─► lexer ─► parser ─► semantic analysis ─► IR generator ─► optimizer ─► code generator ─► VM
+          tokens    AST       dimension check       TAC           fold + DCE    bytecode+peephole  run
 ```
 
-with `if`/`while`/`for` flattened into labels and conditional jumps, the
-standard TAC treatment of control flow. Each temporary's `Dimension` is
-kept alongside the code in a separate table, so a later code-generation
-phase still has access to the physical dimension of every value without
-re-deriving it — the type information the checker worked out doesn't get
-thrown away once checking is done.
+| File | Role |
+|---|---|
+| `lexer.py` | hand-written maximal-munch scanner, multi-error recovery |
+| `parser.py`, `ast_nodes.py` | recursive-descent parser, AST |
+| `dimension.py` | the type system: (Length, Mass, Time) exponent vectors |
+| `symtab.py` | unit table + scoped variable table |
+| `semantic.py` | dimensional analysis, polymorphic function instances, diagnostics |
+| `irgen.py` | AST → three-address code |
+| `optimizer.py` | unit constant folding, dead-code elimination |
+| `codegen.py` | TAC → stack bytecode, peephole pass, assembler, disassembler |
+| `vm.py` | stack virtual machine |
+| `quantity.py` | runtime tagged values and arithmetic |
+| `display.py` | context-aware unit selection for `print` |
+| `interpreter.py` | reference tree-walking interpreter (test oracle) |
+| `pipeline.py`, `main.py` | pipeline entry point, CLI |
+| `run_review2.py` | Review 2 snapshot: stops after IR generation |
 
-Example — this UnitLang snippet:
+## The language
 
 ```
-qty force = mass * accel;
-print(force);
+program   ::= { funcDecl | unitDecl | statement }
+unitDecl  ::= "unit" IDENT "=" expression ";"
+funcDecl  ::= "fn" IDENT "(" [ IDENT { "," IDENT } ] ")" block
+statement ::= "qty" IDENT "=" expr ";" | IDENT "=" expr ";" | if | while | for
+            | "return" [expr] ";" | "print" "(" expr ")" ";" | block | expr ";"
 ```
 
-lowers to:
+Built-in units (scale in base units m, kg, s):
+`m 1`, `km 1000`, `cm 0.01`, `mi 1609.34`, `ft 0.3048`, `kg 1`, `g 0.001`,
+`lb 0.453592`, `s 1`, `ms 0.001`, `min 60`, `hr 3600`.
 
-```
-t17 = mass * accel  # Length * Mass * Time^-2
-force = t17
-print force
-```
-
-(Full dumps: run any example with `--ir`.)
+Rules: `+`, `-` and comparisons need equal dimensions (a literal `0` adapts to any);
+`*` and `/` combine dimensions; `^` needs an integer literal exponent; conditions
+and `&& || !` need plain numbers; a unit name cannot be a variable; no shadowing
+inside a function; functions see top-level variables declared before the call.
 
 ## Novelty
 
-Three things here go beyond what a minimal "check that units match"
-project would do:
+1. **User-defined units** — `unit N = kg * m / s ^ 2;` The compiler computes the new
+   unit's dimension *and* scale at compile time and registers it (`examples/02`).
+2. **Dimension-polymorphic functions** — parameters carry no annotations; each call
+   site creates an *instance* checked with that call's argument dimensions, and the
+   return dimension is inferred. `--symbols` lists the instances (`examples/03`).
+3. **Context-aware printing** — `print` picks the display unit: your own units win;
+   otherwise the largest SI unit with magnitude ≥ 1; imperial units only if the
+   program itself used one; derived dimensions fall back to `m/s`, `m*kg/s^2`
+   (`examples/07`, `08`).
+4. **Diagnostic errors** — messages name the physical dimensions, say how to fix the
+   problem, suggest `did you mean ...?`, and, for errors inside a polymorphic
+   function, name the call that triggered them (`examples/09`–`11`).
+5. **Unit constant folding** — the optimizer treats unit identifiers as compile-time
+   constants, so `5 * km + 300 * m` and `9.8 * m / s ^ 2` become single immediates
+   carrying their dimension (`examples/05`, `--stats`).
 
-**1. User-defined units.** A fixed built-in list (`m`, `kg`, `s`, ...) is
-fine for a toy example, but it doesn't scale to a real program — you'd
-want `N` (newton) or `mph` without them being hardcoded. So UnitLang adds
-a declaration:
+## Sample programs and expected output
 
-```
-unit N = kg * m / s ^ 2;
-unit mph = mi / hr;
-```
+| Program | Shows | Expected output |
+|---|---|---|
+| `01_basics.ul` | normal working | `100 m`, `9.58 s`, `10.4384 m/s`, `2.5 hr`, `49 m*kg/s^2`, `1.5 km`, `250 g` |
+| `02_custom_units.ul` | novelty 1 | `6 N`, `4.5 kN`, `60 mph`, `5 N` |
+| `03_polymorphic_functions.ul` | novelty 2 | `10.4384 m/s`, `5.81151 m/s`, `9 J`, `8 m`, `6`, `120` |
+| `04_control_flow.ul` | loops, conditions | `2.5 hr`, `4`, `1.6 km`, `2 km`, `1 km`, `0 m` |
+| `05_optimizer_demo.ul` | novelty 5 | `5.3 km`, `24`, `500 km` |
+| `06_showcase_physics.ul` | everything together | `686.7 N`, `2060.1 J`, `412.02 W` |
+| `07_context_aware_print.ul` | novelty 3 | `5 km`, `100 m`, `2.5 hr` |
+| `08_imperial_context.ul` | novelty 3 | `26.2 mi`, `3.10686 mi` |
+| `09_error_dimensions.ul` | novelty 4 | 3 dimension errors, exit 1 |
+| `10_error_names.ul` | novelty 4 | 4 name errors incl. `did you mean 'speed'?`, exit 1 |
+| `11_error_function_context.ul` | novelty 4 | error `[while checking 'addOne' called with (Length)]`, exit 1 |
+| `12_runtime_error.ul` | runtime error | `Runtime error: division by zero`, exit 2 |
 
-`semantic.py`'s `_check_unit_decl` / `_eval_unit_expr` evaluate the
-right-hand side purely at the dimension + scale level (reusing the exact
-same `Dimension` arithmetic used for checking ordinary expressions) and
-register the result in the symbol table, so `N` and `mph` behave exactly
-like built-in units for the rest of the program. See
-`examples/custom_units.ul`.
+## How correctness is checked
 
-**2. Smart unit selection on `print`.** Internally, every quantity is
-just a float in base units (metres, kilograms, seconds) — printing it
-raw would mean `qty d = 5000 * m; print(d);` outputs `5000`, which
-defeats the point of a unit-aware language. `interpreter.py`'s
-`smart_format()` instead looks at every unit (built-in or user-defined)
-that shares the value's dimension and picks whichever one puts the
-displayed number closest to a magnitude of 1 (`abs(log10(value/scale))`
-minimized). So that same 5000 m prints as `3.1069 mi` — not necessarily
-the unit a human would reach for first, but a deterministic, explainable
-rule rather than a hardcoded preference table. Swapping in a "prefer
-metric" or "prefer whichever unit was used most recently in this
-program" rule instead would be a natural follow-up (see Known
-Limitations).
+`tests/` holds 72 tests. The key idea: every working example is executed three ways —
+the reference interpreter, the optimized VM, and the unoptimized VM — and all three must
+print identical output. That validates the code generator and the optimizer without
+hand-writing expected values for each program.
 
-**3. Diagnostic error messages.** Instead of a bare "dimension
-mismatch," a failed check names the actual physical dimensions involved
-and suggests what to do about it:
+## Known limitations
 
-```
-Semantic error at line 6: cannot use '+' between Length and Time —
-they aren't the same physical dimension. If this is intentional,
-convert one side to match the other's unit first.
-```
-
-## Known limitations / honest scope notes
-
-These are the corners we deliberately cut for this review, rather than
-bugs we missed:
-
-- **Function parameters are treated as dimensionless.** Proper
-  dimension-polymorphic functions (a `speed(dist, time)` that works for
-  *any* matching pair of Length/Time) would need something like
-  Hindley-Milner-style inference over dimension variables. Right now
-  `fact(n)` works fine because it never mixes dimensions, but a generic
-  `speed()` called with dimensioned arguments would need its parameters
-  declared dimensionless-compatible or the checker extended — flagged
-  here rather than silently wrong.
-- **`smart_format`'s unit choice is a simple heuristic**, not a model of
-  what a person would conventionally pick (it doesn't know "km" is more
-  idiomatic than "mi" for everyday distances) — see Novelty #2.
-- **No array/struct types**, matching the scope fixed in Review 1.
-
-## What's next (Phase 3 / Review 3)
-
-The IR above is designed to hand off cleanly to code generation: each
-instruction is already in a flat, one-operation-at-a-time form, and every
-temporary's dimension is still attached. Phase 3's job is to turn this
-into target code (or a small stack-based VM, still undecided) — the
-dimension annotations either get used for a final safety pass or erased
-entirely once checking is done, depending on which approach we pick.
-
-## Git repo note
-
-This directory is a self-contained git repo (`git log` has the commit
-history). To push it to GitHub under your own account:
-
-```bash
-git remote add origin <your-empty-repo-url>
-git branch -M main
-git push -u origin main
-```
+- `&&` and `||` evaluate both operands (no short-circuit).
+- Only three base dimensions (Length, Mass, Time); no temperature, current, etc.
+- Exponents must be integer literals; functions cannot be passed as values.
+- A function that is never called is not type-checked (a warning is printed).
+- The display-unit rule is a simple heuristic, not a model of convention.
