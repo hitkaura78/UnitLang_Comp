@@ -1,0 +1,20 @@
+// 06 - Everything together: a small physics calculation.
+unit N = kg * m / s ^ 2;
+unit J = N * m;
+unit W = J / s;
+
+fn weight(mass, gravity) { return mass * gravity; }
+fn work(force, dist) { return force * dist; }
+fn power(energy, time) { return energy / time; }
+
+qty gravity = 9.81 * m / s ^ 2;
+qty mass = 70 * kg;
+qty w = weight(mass, gravity);
+print(w);                       // 686.7 N
+
+qty height = 3 * m;
+qty e = work(w, height);
+print(e);                       // 2060.1 J
+
+qty climb = 5 * s;
+print(power(e, climb));         // 412.02 W

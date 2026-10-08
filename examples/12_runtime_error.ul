@@ -1,0 +1,4 @@
+// 12 - Compiles fine, fails at run time (division by zero).
+qty x = 10 * m;
+qty zero = 0 * s;
+print(x / zero);

@@ -1,0 +1,24 @@
+// 04 - Normal working: loops, conditions, assignment with units.
+qty total = 0 * s;
+qty i = 0;
+while (i < 5) {
+    total = total + 30 * min;
+    i = i + 1;
+}
+print(total);                   // 2.5 hr
+
+qty lap = 400 * m;
+qty laps = 0;
+for (qty k = 0; k < 4; k = k + 1) {
+    laps = laps + 1;
+}
+print(laps);                    // 4
+qty run = lap * laps;
+if (run > 1 * km) { print(run); } else { print(lap); }   // 1.6 km
+
+// a literal 0 adapts to any dimension, so countdowns read naturally
+qty remaining = 3 * km;
+while (remaining > 0) {
+    remaining = remaining - 1 * km;
+    print(remaining);           // 2 km, 1 km, 0 m
+}

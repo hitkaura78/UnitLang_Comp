@@ -1,0 +1,16 @@
+// 05 - NOVELTY 5: unit constant folding.
+// Every expression below that only involves literals and units is
+// evaluated by the compiler. Compare:
+//   python3 main.py examples/05_optimizer_demo.ul --stats
+//   python3 main.py examples/05_optimizer_demo.ul --stats --no-opt
+qty a = 5 * km + 300 * m;
+print(a);                       // 5.3 km
+print(2 * 3 * 4);               // 24
+
+qty acc = 0 * m;
+qty i = 0;
+while (i < 1000) {
+    acc = acc + 2 * km / 4;     // constant expression inside a hot loop
+    i = i + 1;
+}
+print(acc);                     // 500 km

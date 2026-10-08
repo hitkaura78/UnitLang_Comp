@@ -1,0 +1,18 @@
+// 01 - Normal working: quantities, dimensional arithmetic, smart printing.
+qty distance = 100 * m;
+qty sprintTime = 9.58 * s;
+qty speed = distance / sprintTime;
+
+print(distance);            // 100 m
+print(sprintTime);          // 9.58 s
+print(speed);               // 10.4384 m/s   (derived dimension)
+
+qty total = 2 * hr + 30 * min;
+print(total);               // 2.5 hr        (hr and min are both Time)
+
+qty mass = 5 * kg;
+qty accel = 9.8 * m / s ^ 2;
+print(mass * accel);        // 49 m*kg/s^2   (no unit N defined here)
+
+print(1500 * m);            // 1.5 km
+print(0.25 * kg);           // 250 g

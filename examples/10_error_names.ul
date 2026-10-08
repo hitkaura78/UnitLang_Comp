@@ -1,0 +1,7 @@
+// 10 - More diagnostics: names. Deliberately wrong.
+qty speed = 10 * m / s;
+print(sped);                       // typo -> did you mean 'speed'?
+qty m = 5;                         // 'm' is a unit name
+print(foo(1));                     // undefined function
+qty x = 1;
+qty x = 2;                         // redeclared

@@ -1,0 +1,5 @@
+// 11 - Errors inside a polymorphic function are reported together with
+// the call that triggered them. Deliberately wrong.
+fn addOne(x) { return x + 1; }
+print(addOne(5));                  // fine: number + number
+print(addOne(5 * m));              // Length + number -> error

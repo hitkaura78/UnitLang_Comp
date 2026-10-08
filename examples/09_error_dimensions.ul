@@ -1,0 +1,6 @@
+// 09 - NOVELTY 4: diagnostic errors. This program is deliberately wrong.
+qty distance = 100 * m;
+qty duration = 9.58 * s;
+qty bad = distance + duration;     // Length + Time
+qty bad2 = distance + 5;           // Length + bare number
+if (distance) { print(1); }        // condition must be a plain number

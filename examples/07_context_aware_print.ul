@@ -1,0 +1,6 @@
+// 07 - NOVELTY 3: context-aware printing.
+// No imperial unit appears in this program, so lengths print in metric.
+qty a = 5000 * m;
+print(a);                       // 5 km
+print(100 * m);                 // 100 m
+print(9000 * s);                // 2.5 hr

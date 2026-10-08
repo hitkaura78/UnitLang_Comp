@@ -1,0 +1,16 @@
+// 02 - NOVELTY 1: user-defined units.
+// `unit` teaches the compiler a new unit from existing ones. The compiler
+// works out its dimension AND its conversion factor at compile time.
+unit N  = kg * m / s ^ 2;       // newton
+unit kN = 1000 * N;             // defined from another user unit
+unit mph = mi / hr;
+
+qty f = 6 * kg * m / s ^ 2;
+print(f);                       // 6 N
+
+qty big = 4500 * N;
+print(big);                     // 4.5 kN
+
+qty v = 60 * mi / hr;
+print(v);                       // 60 mph
+print(2 * N + 3 * N);           // 5 N

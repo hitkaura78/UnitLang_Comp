@@ -1,0 +1,19 @@
+// 03 - NOVELTY 2: dimension-polymorphic functions.
+// The functions below have NO unit annotations. The compiler infers, per
+// call site, what dimension each parameter has and what the result is.
+unit J = kg * m ^ 2 / s ^ 2;
+
+fn speed(d, t) { return d / t; }
+fn kinetic(mass, vel) { return 0.5 * mass * vel * vel; }
+fn twice(x) { return x * 2; }
+
+print(speed(100 * m, 9.58 * s));         // 10.4384 m/s
+print(speed(26 * mi, 2 * hr));           // 5.81151 m/s
+print(kinetic(2 * kg, 3 * m / s));       // 9 J
+print(twice(4 * m));                     // 8 m   (Length -> Length)
+print(twice(3));                         // 6     (number -> number)
+
+fn fact(n) {
+    if (n <= 1) { return 1; } else { return n * fact(n - 1); }
+}
+print(fact(5));                          // 120   (recursion works too)

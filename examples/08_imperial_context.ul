@@ -1,0 +1,5 @@
+// 08 - The same kind of program, but it mentions miles - so the printer
+// is allowed to use imperial units too.
+qty marathon = 26.2 * mi;
+print(marathon);                // 26.2 mi
+print(5000 * m);                // 3.10686 mi
