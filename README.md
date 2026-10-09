@@ -63,6 +63,7 @@ source ─► lexer ─► parser ─► semantic analysis ─► IR generator �
 | `interpreter.py` | reference tree-walking interpreter (test oracle) |
 | `pipeline.py`, `main.py` | pipeline entry point, CLI |
 | `run_review2.py` | Review 2 snapshot: stops after IR generation |
+| `run_samples.py` | runs every sample program and checks its expected result |
 
 ## The language
 
@@ -117,6 +118,18 @@ inside a function; functions see top-level variables declared before the call.
 | `10_error_names.ul` | novelty 4 | 4 name errors incl. `did you mean 'speed'?`, exit 1 |
 | `11_error_function_context.ul` | novelty 4 | error `[while checking 'addOne' called with (Length)]`, exit 1 |
 | `12_runtime_error.ul` | runtime error | `Runtime error: division by zero`, exit 2 |
+
+## Checking every sample at once
+
+```bash
+python3 run_samples.py          # runs examples/ and samples/ and checks each against its expected result
+python3 run_samples.py -v       # also prints each program's real output
+python3 run_samples.py B02      # only files whose path contains "B02"
+```
+
+`samples/` holds 47 small programs, one per test case (lexer, type rules, user units,
+polymorphic functions, printing, control flow, runtime errors). Each states its expected
+result in comment lines at the end of the file.
 
 ## How correctness is checked
 
