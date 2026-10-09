@@ -1,0 +1,7 @@
+qty x = ;
+
+// TITLE: Syntax error with position
+// TESTS: the parser reports the line, column and offending token
+// expect-exit: 1
+// expect-stderr: Parse error at
+// expect-stderr: expected an expression

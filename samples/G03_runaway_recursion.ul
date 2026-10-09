@@ -1,0 +1,7 @@
+fn f(n) { return f(n + 1); }
+print(f(0));
+
+// TITLE: Runaway recursion
+// TESTS: stopped by the call-depth limit instead of crashing
+// expect-exit: 2
+// expect-stderr: maximum call depth exceeded

@@ -1,0 +1,8 @@
+fn unused(x) { return x; }
+print(1);
+
+// TITLE: Uncalled function
+// TESTS: an uncalled function gets a warning and the program still runs
+// expect-exit: 0
+// expect: 1
+// expect-stderr: function 'unused' is never called

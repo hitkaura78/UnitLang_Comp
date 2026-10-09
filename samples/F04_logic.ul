@@ -1,0 +1,10 @@
+print(1 < 2 && 2 < 3);
+print(!(1 < 2));
+print(1 > 2 || 3 > 2);
+
+// TITLE: Logic operators
+// TESTS: &&, || and ! on booleans
+// expect-exit: 0
+// expect: true
+// expect: false
+// expect: true

@@ -1,0 +1,9 @@
+qty bad = 1 * m + 1 * s;
+print(bad);
+qty again = bad;
+
+// TITLE: One error, one message
+// TESTS: a failed declaration does not cause follow-up errors on later lines
+// expect-exit: 1
+// expect-stderr: cannot use '+'
+// expect-errors: 1

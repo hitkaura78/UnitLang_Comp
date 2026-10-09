@@ -1,0 +1,11 @@
+for (qty i = 0; i < 3; i = i + 1) { print(i); }
+for (qty i = 5; i < 7; i = i + 1) { print(i); }
+
+// TITLE: for loop and its scope
+// TESTS: the loop variable belongs to the loop, so it can be reused
+// expect-exit: 0
+// expect: 0
+// expect: 1
+// expect: 2
+// expect: 5
+// expect: 6

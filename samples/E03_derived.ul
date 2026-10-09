@@ -1,0 +1,8 @@
+print(10 * m / (2 * s));
+print(3 * kg * 2 * m / s ^ 2);
+
+// TITLE: Derived dimensions
+// TESTS: no named unit: composed base-unit string
+// expect-exit: 0
+// expect: 5 m/s
+// expect: 6 m*kg/s^2

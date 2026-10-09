@@ -1,0 +1,10 @@
+print(5000 * m);
+print(1 * mi);
+print(5000 * m);
+
+// TITLE: Imperial units only if the program uses them
+// TESTS: the same 5000 m prints differently depending on context
+// expect-exit: 0
+// expect: 3.10686 mi
+// expect: 1 mi
+// expect: 3.10686 mi

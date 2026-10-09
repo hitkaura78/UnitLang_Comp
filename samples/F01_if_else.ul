@@ -1,0 +1,9 @@
+qty d = 5 * km;
+if (d > 1 * km) { print(1); } else { print(2); }
+if (d > 10 * km) { print(1); } else { print(2); }
+
+// TITLE: if / else
+// TESTS: both branches
+// expect-exit: 0
+// expect: 1
+// expect: 2

@@ -1,0 +1,12 @@
+print(9000 * s);
+print(150 * s);
+print(1500 * g);
+print(0.25 * kg);
+
+// TITLE: Time and mass
+// TESTS: same rule for other dimensions
+// expect-exit: 0
+// expect: 2.5 hr
+// expect: 2.5 min
+// expect: 1.5 kg
+// expect: 250 g

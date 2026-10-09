@@ -1,0 +1,9 @@
+fn speed(d, t) { return d / t; }
+print(speed(100 * m, 9.58 * s));
+print(speed(26 * mi, 2 * hr));
+
+// TITLE: Return dimension is inferred
+// TESTS: speed() returns Length/Time for metres and seconds, and again for miles and hours
+// expect-exit: 0
+// expect: 10.4384 m/s
+// expect: 5.81151 m/s

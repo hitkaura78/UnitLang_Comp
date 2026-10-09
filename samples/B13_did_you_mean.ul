@@ -1,0 +1,7 @@
+qty speed = 10 * m / s;
+print(sped);
+
+// TITLE: Did-you-mean suggestion
+// TESTS: a misspelt name gets a suggestion
+// expect-exit: 1
+// expect-stderr: did you mean 'speed'?

@@ -1,0 +1,7 @@
+qty a = 3 * m + 5;
+
+// TITLE: Quantity + bare number
+// TESTS: a number with no unit cannot be added to a quantity; the message says how to fix it
+// expect-exit: 1
+// expect-stderr: Length and a plain number
+// expect-stderr: attach one

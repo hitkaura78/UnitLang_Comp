@@ -1,0 +1,8 @@
+qty a = 2 * km;
+qty b = 300 * m;
+print(a + b);
+
+// TITLE: Adding equal dimensions
+// TESTS: km + m is fine: both are Length
+// expect-exit: 0
+// expect: 2.3 km

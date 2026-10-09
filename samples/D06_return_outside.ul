@@ -1,0 +1,6 @@
+return 1;
+
+// TITLE: Return outside a function
+// TESTS: rejected by the checker
+// expect-exit: 1
+// expect-stderr: 'return' outside of a function

@@ -1,0 +1,11 @@
+qty a = 1 * m + 1 * s;
+qty b = 2 * kg + 3 * m;
+print(nothing);
+
+// TITLE: Several independent errors
+// TESTS: all independent errors are reported in one run
+// expect-exit: 1
+// expect-stderr: Length and Time
+// expect-stderr: Mass and Length
+// expect-stderr: undeclared identifier 'nothing'
+// expect-errors: 3

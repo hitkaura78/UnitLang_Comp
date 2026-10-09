@@ -1,0 +1,10 @@
+qty a = 100 * m;
+qty b = 9.58 * s;
+qty c = a + b;
+
+// TITLE: Length + Time
+// TESTS: different dimensions are rejected with a physical explanation
+// expect-exit: 1
+// expect-stderr: cannot use '+' on Length and Time
+// expect-stderr: different physical dimensions
+// expect-errors: 1

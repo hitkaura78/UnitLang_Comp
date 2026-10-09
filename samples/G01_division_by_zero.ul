@@ -1,0 +1,8 @@
+qty x = 10 * m;
+qty zero = 0 * s;
+print(x / zero);
+
+// TITLE: Division by zero
+// TESTS: type-checks fine, fails when run (exit status 2)
+// expect-exit: 2
+// expect-stderr: Runtime error: division by zero

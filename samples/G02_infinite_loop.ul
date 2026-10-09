@@ -1,0 +1,7 @@
+qty i = 0;
+while (true) { i = i + 1; }
+
+// TITLE: Infinite loop
+// TESTS: stopped by the VM step limit instead of hanging
+// expect-exit: 2
+// expect-stderr: step limit exceeded

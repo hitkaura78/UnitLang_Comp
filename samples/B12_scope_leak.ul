@@ -1,0 +1,7 @@
+{ qty inner = 1; }
+print(inner);
+
+// TITLE: Block scope
+// TESTS: a variable declared inside a block is not visible outside it
+// expect-exit: 1
+// expect-stderr: undeclared identifier 'inner'

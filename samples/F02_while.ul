@@ -1,0 +1,12 @@
+qty total = 0 * s;
+qty i = 0;
+while (i < 5) {
+    total = total + 30 * min;
+    i = i + 1;
+}
+print(total);
+
+// TITLE: while loop with units
+// TESTS: adding Time until a condition fails
+// expect-exit: 0
+// expect: 2.5 hr

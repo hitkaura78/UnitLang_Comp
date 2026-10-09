@@ -1,0 +1,8 @@
+unit N = kg * m / s ^ 2;
+qty f = 5 * N;
+qty bad = f + 2 * m;
+
+// TITLE: User units are type-checked
+// TESTS: a user unit has a real dimension, so mixing it with Length is an error
+// expect-exit: 1
+// expect-stderr: Length * Mass * Time^-2 and Length

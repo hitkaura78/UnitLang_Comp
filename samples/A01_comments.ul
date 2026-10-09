@@ -1,0 +1,9 @@
+// a line comment
+/* a block
+   comment */
+print(1 /* inline */ + 2);
+
+// TITLE: Comments and whitespace
+// TESTS: line and block comments are skipped, even inside an expression
+// expect-exit: 0
+// expect: 3

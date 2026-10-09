@@ -1,0 +1,15 @@
+fn fact(n) {
+    if (n <= 1) { return 1; } else { return n * fact(n - 1); }
+}
+fn fib(n) {
+    if (n < 2) { return n; }
+    return fib(n - 1) + fib(n - 2);
+}
+print(fact(5));
+print(fib(10));
+
+// TITLE: Recursion
+// TESTS: factorial and Fibonacci type-check and run
+// expect-exit: 0
+// expect: 120
+// expect: 55

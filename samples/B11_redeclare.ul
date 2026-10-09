@@ -1,0 +1,7 @@
+qty x = 1;
+qty x = 2;
+
+// TITLE: Redeclaration (no shadowing)
+// TESTS: a name cannot be declared twice in one scope
+// expect-exit: 1
+// expect-stderr: 'x' is already declared

@@ -1,0 +1,9 @@
+qty a = 1 @ 2;
+qty b = 3 $ 4;
+
+// TITLE: Illegal characters
+// TESTS: the lexer reports every bad character in one run
+// expect-exit: 1
+// expect-stderr: unexpected character '@'
+// expect-stderr: unexpected character '$'
+// expect-errors: 2

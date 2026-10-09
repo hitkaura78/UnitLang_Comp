@@ -1,0 +1,7 @@
+qty a = 1;
+/* this comment never ends
+
+// TITLE: Unterminated block comment
+// TESTS: reported as a lexical error
+// expect-exit: 1
+// expect-stderr: unterminated block comment

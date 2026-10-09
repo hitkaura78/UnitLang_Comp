@@ -1,0 +1,8 @@
+qty d = 5 * m;
+if (d) { print(1); }
+
+// TITLE: Condition must be dimensionless
+// TESTS: if (distance) is meaningless, so it is rejected with a suggestion
+// expect-exit: 1
+// expect-stderr: a condition must be a plain number or boolean
+// expect-stderr: x > 0 * m

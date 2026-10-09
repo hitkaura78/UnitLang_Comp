@@ -1,0 +1,10 @@
+qty total = 0 * m;
+fn addTo(x) { total = total + x; return total; }
+addTo(2 * km);
+addTo(300 * m);
+print(total);
+
+// TITLE: Functions and global variables
+// TESTS: a function can read and update top-level variables
+// expect-exit: 0
+// expect: 2.3 km

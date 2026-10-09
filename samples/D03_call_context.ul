@@ -1,0 +1,9 @@
+fn addOne(x) { return x + 1; }
+print(addOne(5));
+print(addOne(5 * m));
+
+// TITLE: Error inside a function names the call
+// TESTS: the message says which call triggered the error
+// expect-exit: 1
+// expect-stderr: while checking 'addOne' called with (Length)
+// expect-errors: 1

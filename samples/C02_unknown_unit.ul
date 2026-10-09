@@ -1,0 +1,6 @@
+unit Q = foo * m;
+
+// TITLE: Unknown name in a unit definition
+// TESTS: the right-hand side may only use known units
+// expect-exit: 1
+// expect-stderr: 'foo' is not a known unit

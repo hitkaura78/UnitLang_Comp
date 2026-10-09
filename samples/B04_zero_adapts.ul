@@ -1,0 +1,9 @@
+qty d = 5 * m;
+print(d > 0);
+print(d - 0);
+
+// TITLE: Literal zero adapts
+// TESTS: 0 is compatible with any dimension, so comparisons with 0 work
+// expect-exit: 0
+// expect: true
+// expect: 5 m

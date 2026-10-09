@@ -1,0 +1,7 @@
+unit N = kg * m / s ^ 2;
+print(6 * kg * m / s ^ 2);
+
+// TITLE: Your own unit wins
+// TESTS: a user-defined unit of the right dimension is preferred
+// expect-exit: 0
+// expect: 6 N

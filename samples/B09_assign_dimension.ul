@@ -1,0 +1,8 @@
+qty d = 5 * m;
+d = 3 * s;
+
+// TITLE: Assignment cannot change a dimension
+// TESTS: a variable keeps the dimension it was declared with
+// expect-exit: 1
+// expect-stderr: cannot assign Time to 'd'
+// expect-stderr: declared as Length

@@ -1,0 +1,7 @@
+qty n = 2;
+qty a = (3 * m) ^ n;
+
+// TITLE: Exponent must be an integer literal
+// TESTS: a variable exponent could change the dimension at run time, so it is rejected
+// expect-exit: 1
+// expect-stderr: integer literal

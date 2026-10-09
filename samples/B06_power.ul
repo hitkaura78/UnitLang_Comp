@@ -1,0 +1,8 @@
+print((3 * m) ^ 2);
+print(1 / (4 * s));
+
+// TITLE: Powers
+// TESTS: x ^ n multiplies the exponents by n
+// expect-exit: 0
+// expect: 9 m^2
+// expect: 0.25 1/s

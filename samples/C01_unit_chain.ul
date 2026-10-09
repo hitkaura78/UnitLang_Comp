@@ -1,0 +1,15 @@
+unit N = kg * m / s ^ 2;
+unit kN = 1000 * N;
+unit mph = mi / hr;
+print(6 * kg * m / s ^ 2);
+print(4500 * N);
+print(60 * mi / hr);
+print(2 * N + 3 * N);
+
+// TITLE: Units defined from units
+// TESTS: N from base units, kN from N, mph from mi and hr
+// expect-exit: 0
+// expect: 6 N
+// expect: 4.5 kN
+// expect: 60 mph
+// expect: 5 N

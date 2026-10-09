@@ -1,0 +1,10 @@
+print(5000 * m);
+print(100 * m);
+print(0.02 * m);
+
+// TITLE: Choosing an SI unit
+// TESTS: largest unit in which the number is at least 1
+// expect-exit: 0
+// expect: 5 km
+// expect: 100 m
+// expect: 2 cm

@@ -1,0 +1,6 @@
+unit km = 5 * m;
+
+// TITLE: Redefining a unit
+// TESTS: built-in and user units cannot be redefined
+// expect-exit: 1
+// expect-stderr: unit 'km' is already defined

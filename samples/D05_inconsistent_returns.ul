@@ -1,0 +1,10 @@
+fn f(x) {
+    if (x > 0) { return 1 * m; }
+    return 1 * s;
+}
+print(f(1));
+
+// TITLE: Inconsistent return dimensions
+// TESTS: a function must return one dimension per instance
+// expect-exit: 1
+// expect-stderr: returns different dimensions on different paths

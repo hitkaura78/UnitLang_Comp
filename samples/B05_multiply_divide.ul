@@ -1,0 +1,9 @@
+qty v = 10 * m / (2 * s);
+print(v);
+print(v * (4 * s));
+
+// TITLE: Multiplying and dividing dimensions
+// TESTS: exponents add and subtract
+// expect-exit: 0
+// expect: 5 m/s
+// expect: 20 m

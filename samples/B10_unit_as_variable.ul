@@ -1,0 +1,6 @@
+qty m = 5;
+
+// TITLE: Unit name as variable
+// TESTS: m always means metres
+// expect-exit: 1
+// expect-stderr: 'm' is a unit name

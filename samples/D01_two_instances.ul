@@ -1,0 +1,9 @@
+fn twice(x) { return x * 2; }
+print(twice(4 * m));
+print(twice(3));
+
+// TITLE: One function, two dimensions
+// TESTS: twice() is checked once for Length and once for a plain number
+// expect-exit: 0
+// expect: 8 m
+// expect: 6
