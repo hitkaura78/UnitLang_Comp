@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UnitLang IDE | Interactive Dimensional Compiler</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-badge">UL</span>
+        <span class="logo-text">UnitLang <strong>IDE</strong></span>
+        <span class="version-tag">v2.0</span>
+      </div>
+      <div class="file-tab">
+        <span class="tab-icon">📄</span>
+        <span id="active-filename">examples/01_basics.ul</span>
+        <span id="dirty-indicator" class="dirty-indicator hidden">●</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Target Engine -->
+      <div class="control-group">
+        <label for="engine-select">Target:</label>
+        <select id="engine-select" title="Execution Engine">
+          <option value="vm" selected>Bytecode VM (Stack)</option>
+          <option value="interp">Tree-Walking Interpreter</option>
+        </select>
+      </div>
+
+      <!-- Optimizer Toggle -->
+      <div class="control-group">
+        <label class="toggle-switch" title="Enable/Disable Unit Constant Folding & Dead-Code Elimination">
+          <input type="checkbox" id="opt-toggle" checked>
+          <span class="slider"></span>
+          <span class="toggle-label">Optimizer</span>
+        </label>
+      </div>
+
+      <!-- Run Button -->
+      <button id="run-btn" class="btn btn-primary" title="Compile and Execute (Ctrl + Enter)">
+        <span class="btn-icon">▶</span>
+        <span class="btn-text">Run</span>
+        <span class="btn-shortcut">Ctrl+↵</span>
+      </button>
+
+      <!-- Run All Tests -->
+      <button id="test-all-btn" class="btn btn-secondary" title="Run all 59 sample programs">
+        <span class="btn-icon">🧪</span>
+        <span class="btn-text">Test All (59)</span>
+      </button>
+
+      <!-- Save Button -->
+      <button id="save-btn" class="btn btn-ghost" title="Save file changes (Ctrl + S)">
+        <span class="btn-icon">💾</span>
+      </button>
+
+      <!-- GitHub Link -->
+      <a href="https://github.com/hitkaura78/UnitLang_Comp" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" title="View Source on GitHub">
+        <svg class="gh-icon" viewBox="0 0 16 16" width="18" height="18" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Application Container -->
+  <div class="app-body">
+    <!-- Sidebar / File Explorer -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <span>PROGRAMS & SAMPLES</span>
+          <span class="sample-count-badge" id="total-samples-count">59</span>
+        </div>
+        <div class="sidebar-actions">
+          <button id="new-scratchpad-btn" class="btn-icon-tiny" title="New Scratchpad">+ New</button>
+        </div>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box-wrapper">
+        <input type="text" id="sample-search" placeholder="Filter samples (e.g. speed, error, N)..." autocomplete="off">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <!-- Sample Tree List -->
+      <div class="sample-list" id="sample-list">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="app-workspace">
+      <!-- Editor Panel (Left Pane) -->
+      <section class="pane editor-pane" id="editor-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <span class="pane-icon">📝</span>
+            <span id="current-title">Source Code</span>
+            <span id="current-desc" class="desc-text"></span>
+          </div>
+          <div class="pane-actions">
+            <button id="format-btn" class="btn-sm" title="Revert to original sample code">Revert</button>
+            <button id="copy-code-btn" class="btn-sm" title="Copy code to clipboard">Copy</button>
+          </div>
+        </div>
+
+        <div class="editor-container" id="editor-container">
+          <div class="line-numbers" id="line-numbers"></div>
+          <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="// Enter UnitLang code here..."></textarea>
+        </div>
+
+        <div class="editor-statusbar">
+          <div class="status-left">
+            <span id="status-cursor">Line 1, Col 1</span>
+            <span class="separator">|</span>
+            <span id="status-lines">0 lines</span>
+            <span class="separator">|</span>
+            <span class="unit-system-tag">SI Base: m, kg, s</span>
+          </div>
+          <div class="status-right">
+            <span class="lang-tag">UnitLang 3.10+</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Output & Inspection Panel (Right Pane) -->
+      <section class="pane output-pane" id="output-pane">
+        <!-- Tabs Bar -->
+        <div class="pane-header tabs-header">
+          <div class="tabs-list">
+            <button class="tab-btn active" data-tab="tab-terminal">
+              <span class="tab-icon">💻</span> Terminal
+            </button>
+            <button class="tab-btn" data-tab="tab-comparison">
+              <span class="tab-icon">🎯</span> Expected vs Actual
+              <span id="test-status-pill" class="status-pill status-ready">READY</span>
+            </button>
+            <button class="tab-btn" data-tab="tab-ir">
+              <span class="tab-icon">⚙️</span> TAC IR
+            </button>
+            <button class="tab-btn" data-tab="tab-bytecode">
+              <span class="tab-icon">📦</span> Bytecode
+            </button>
+            <button class="tab-btn" data-tab="tab-symbols">
+              <span class="tab-icon">📊</span> Symbols
+            </button>
+            <button class="tab-btn" data-tab="tab-stats">
+              <span class="tab-icon">⚡</span> Stats
+            </button>
+            <button class="tab-btn" data-tab="tab-runner">
+              <span class="tab-icon">🧪</span> Test Suite
+            </button>
+          </div>
+          <div class="pane-actions">
+            <button id="clear-term-btn" class="btn-sm" title="Clear terminal">Clear</button>
+          </div>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="tabs-content">
+          <!-- 1. Terminal Output Tab -->
+          <div id="tab-terminal" class="tab-pane active">
+            <div class="terminal-container">
+              <div class="terminal-bar">
+                <span class="term-circle red"></span>
+                <span class="term-circle yellow"></span>
+                <span class="term-circle green"></span>
+                <span class="term-title">unitlang-terminal</span>
+                <span id="term-exec-time" class="term-time"></span>
+              </div>
+              <pre id="terminal-output" class="terminal-pre">$ unitlang --ready
+Click "Run" or press Ctrl+Enter to compile and run.</pre>
+            </div>
+          </div>
+
+          <!-- 2. Expected vs Actual Output Tab -->
+          <div id="tab-comparison" class="tab-pane">
+            <div class="comparison-container">
+              <div class="comparison-banner" id="comparison-banner">
+                <div class="banner-status-icon" id="banner-status-icon">ℹ️</div>
+                <div class="banner-text">
+                  <div class="banner-title" id="banner-title">No execution yet</div>
+                  <div class="banner-subtitle" id="banner-subtitle">Run the code to compare compiler output against expected specifications.</div>
+                </div>
+              </div>
+
+              <div class="diff-grid">
+                <!-- Actual Output Box -->
+                <div class="diff-card">
+                  <div class="diff-card-header">
+                    <span>Actual Execution Output</span>
+                    <span id="actual-status-badge" class="badge">None</span>
+                  </div>
+                  <div class="diff-card-body">
+                    <div class="field-label">Exit Status:</div>
+                    <div id="actual-exit-code" class="field-value">-</div>
+
+                    <div class="field-label">Standard Output (stdout):</div>
+                    <pre id="actual-stdout" class="diff-code-box">(empty)</pre>
+
+                    <div class="field-label">Standard Error (stderr):</div>
+                    <pre id="actual-stderr" class="diff-code-box">(empty)</pre>
+                  </div>
+                </div>
+
+                <!-- Expected Output Box -->
+                <div class="diff-card">
+                  <div class="diff-card-header">
+                    <span>Expected Test Specification</span>
+                    <span id="expected-spec-badge" class="badge">Sample Spec</span>
+                  </div>
+                  <div class="diff-card-body">
+                    <div class="field-label">Expected Exit Status:</div>
+                    <div id="expected-exit-code" class="field-value">-</div>
+
+                    <div class="field-label">Expected Output (stdout):</div>
+                    <pre id="expected-stdout" class="diff-code-box">(none)</pre>
+
+                    <div class="field-label">Expected Error Text (stderr):</div>
+                    <pre id="expected-stderr" class="diff-code-box">(none)</pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mismatches List if any -->
+              <div id="diff-mismatch-box" class="mismatch-box hidden">
+                <div class="mismatch-header">⚠️ Differences Detected:</div>
+                <ul id="mismatch-list" class="mismatch-list"></ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. TAC IR Tab -->
+          <div id="tab-ir" class="tab-pane">
+            <div class="ir-controls">
+              <span class="sub-label">Show TAC:</span>
+              <button id="ir-view-opt" class="pill-btn active">Optimized TAC</button>
+              <button id="ir-view-unopt" class="pill-btn">Unoptimized TAC</button>
+              <button id="ir-view-diff" class="pill-btn">Side-by-Side</button>
+            </div>
+            <div class="ir-display-area" id="ir-display-area">
+              <pre id="ir-output" class="code-pre"></pre>
+            </div>
+          </div>
+
+          <!-- 4. Bytecode Tab -->
+          <div id="tab-bytecode" class="tab-pane">
+            <div class="bytecode-container">
+              <div class="bytecode-header-info">
+                <span>Disassembled Stack VM Bytecode (main & functions)</span>
+              </div>
+              <pre id="bytecode-output" class="code-pre"></pre>
+            </div>
+          </div>
+
+          <!-- 5. Symbol Tables Tab -->
+          <div id="tab-symbols" class="tab-pane">
+            <div class="symbols-container">
+              <h3>Registered Physical Units</h3>
+              <div class="table-wrapper">
+                <table class="data-table" id="units-table">
+                  <thead>
+                    <tr>
+                      <th>Unit Name</th>
+                      <th>Physical Dimension [L, M, T]</th>
+                      <th>Scale (Base SI)</th>
+                      <th>Origin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="4" class="empty-row">Run program to view unit table</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Global Variables</h3>
+              <div class="table-wrapper">
+                <table class="data-table" id="globals-table">
+                  <thead>
+                    <tr>
+                      <th>Variable Name</th>
+                      <th>Inferred Physical Dimension</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="2" class="empty-row">Run program to view global symbols</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Polymorphic Function Instances</h3>
+              <div class="table-wrapper">
+                <table class="data-table" id="functions-table">
+                  <thead>
+                    <tr>
+                      <th>Function Name</th>
+                      <th>Argument Dimensions</th>
+                      <th>Inferred Return Dimension</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="3" class="empty-row">Run program to view polymorphic call instances</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Stats Tab -->
+          <div id="tab-stats" class="tab-pane">
+            <div class="stats-container">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-tac-reduction">-</div>
+                  <div class="stat-label">TAC Instructions (Before → After)</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-folded">-</div>
+                  <div class="stat-label">Operations Folded</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-unit-folds">-</div>
+                  <div class="stat-label">Unit Arithmetic Folds</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-constants-propagated">-</div>
+                  <div class="stat-label">Constants Propagated</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-dead-code">-</div>
+                  <div class="stat-label">Dead Instructions Eliminated</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-bytecode-reduction">-</div>
+                  <div class="stat-label">Bytecode Instructions (Pre → Post)</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-num" id="stat-peephole">-</div>
+                  <div class="stat-label">Peephole Pairs Removed</div>
+                </div>
+                <div class="stat-card highlight">
+                  <div class="stat-num" id="stat-vm-steps">-</div>
+                  <div class="stat-label">VM Instructions Executed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Test Suite Runner Tab -->
+          <div id="tab-runner" class="tab-pane">
+            <div class="runner-container">
+              <div class="runner-summary-card">
+                <div class="runner-summary-left">
+                  <div class="runner-big-status" id="runner-big-status">Ready to Run</div>
+                  <div class="runner-subtitle" id="runner-summary-text">59 sample programs across all test categories</div>
+                </div>
+                <div class="runner-summary-right">
+                  <button id="start-test-suite-btn" class="btn btn-primary btn-large">
+                    <span>⚡ Run All 59 Tests</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-bar-container hidden" id="progress-container">
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-info">
+                  <span id="progress-text">Running test suite...</span>
+                  <span id="progress-percent">0%</span>
+                </div>
+              </div>
+
+              <!-- Test Filters -->
+              <div class="test-filter-bar">
+                <button class="filter-chip active" data-filter="all">All (<span id="filter-all-count">59</span>)</button>
+                <button class="filter-chip" data-filter="pass">Passed (<span id="filter-pass-count">0</span>)</button>
+                <button class="filter-chip" data-filter="fail">Failed (<span id="filter-fail-count">0</span>)</button>
+              </div>
+
+              <!-- Test Results Table -->
+              <div class="table-wrapper test-table-wrapper">
+                <table class="data-table" id="test-results-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 80px;">Status</th>
+                      <th>Category</th>
+                      <th>File & Title</th>
+                      <th>Exit Code</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="test-results-body">
+                    <tr><td colspan="5" class="empty-row">Click "Run All 59 Tests" to execute the test suite.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

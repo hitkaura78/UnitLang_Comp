@@ -19,6 +19,14 @@ needed to run the tests.)
 
 ## Quick start
 
+### Interactive Web IDE (Localhost)
+Run the built-in browser IDE on localhost:
+```bash
+python3 ide.py
+```
+Open **http://localhost:8080** to browse/edit code, execute sample programs, and view terminal output side-by-side with expected outputs.
+
+### Command Line
 ```bash
 python3 main.py examples/01_basics.ul
 python3 main.py examples/03_polymorphic_functions.ul --symbols
@@ -64,6 +72,8 @@ source ─► lexer ─► parser ─► semantic analysis ─► IR generator �
 | `pipeline.py`, `main.py` | pipeline entry point, CLI |
 | `run_review2.py` | Review 2 snapshot: stops after IR generation |
 | `run_samples.py` | runs every sample program and checks its expected result |
+| `ide.py`, `ide_server.py` | interactive Web IDE server running on localhost |
+| `ide_web/` | Web IDE UI (HTML, CSS, JS with zero external dependencies) |
 
 ## The language
 
