@@ -463,7 +463,8 @@ class UnitLangRequestHandler(http.server.BaseHTTPRequestHandler):
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    # On Windows, allow_reuse_address allows multiple listeners on the same port; disable it for clean binding
+    allow_reuse_address = False
 
 
 def start_server(port=8080, open_browser=True):
@@ -498,6 +499,7 @@ def start_server(port=8080, open_browser=True):
     print("  * Features: Code Editor, Pipeline Explorer, Output & Diff, Test Suite")
     print("  * Press Ctrl+C to stop the server")
     print("=" * 64)
+    sys.stdout.flush()
 
     if open_browser:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()
